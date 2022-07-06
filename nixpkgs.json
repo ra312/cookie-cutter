@@ -1,0 +1,7 @@
+{
+    "owner": "NixOS",
+    "repo": "nixpkgs",
+    "rev": "c9f5211b769a2edc46037cafcdf4e15b694820d6",
+    "sha256": "1qra1lrj3chmyrxmybaqgidp562wcss69461svwx8mzhli50xq5c",
+    "fetchSubmodules": false
+}
