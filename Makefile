@@ -19,6 +19,7 @@ install:
 	@echo "This file is used by 'make' for keeping track of last install time. If pyproject.toml or poetry.lock are newer then this file (.installed) then all 'make *' commands that depend on '.installed' know they need to run 'poetry install' first." \
 		> .installed
 
+
 # Start database in docker in foreground
 .PHONY: pgsql
 pgsql: .installed
