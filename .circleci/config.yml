@@ -1,0 +1,54 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2
+
+jobs:
+
+  build:
+    working_directory: ~/repo
+    environment:
+      PIPENV_VENV_IN_PROJECT: 1
+      PIPENV_IGNORE_VIRTUALENVS: 1
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: ""
+    docker:
+      - image: circleci/python:3.7.3
+      - image: circleci/postgres:11.2-alpine
+    steps:
+      - checkout
+
+      - run:
+          name: Create testing db
+          command: |
+            sudo apt install postgresql-client
+            psql -h localhost -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+              CREATE USER conduit_test WITH PASSWORD '';
+              CREATE DATABASE conduit_test;
+              GRANT ALL PRIVILEGES ON DATABASE conduit_test TO conduit_test;
+            EOSQL
+            
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "Pipfile.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            sudo pip install pipenv
+            pipenv install --dev --deploy
+            touch .installed
+
+      - save_cache:
+          paths:
+            - ./.venv
+          key: v1-dependencies-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: run tests
+          command: |
+            pipenv run pytest src
